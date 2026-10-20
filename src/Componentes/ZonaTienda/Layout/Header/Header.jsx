@@ -2,6 +2,7 @@ import "./Header.css";
 import { useNavigate } from "react-router";
 import OffCanvasCats from "./OffCanvasCategorias/OffCanvasCats.jsx";
 import useAuthStore from "../../../../store/authStore.js";
+import SessionButton from "./SessionButton/SessionButton.jsx";
 
 function Header() {
   const saltarAUrl = useNavigate(); //<--- el hook useNavigate() de react-router nos permite saltar a una url si recargar toda la app desde el principio
@@ -81,30 +82,12 @@ function Header() {
               Buscar con IA
             </button>
 
-            {usuario === null ? (
-              <button
-                className="btn btn-light btn-sm"
-                onClick={() => saltarAUrl("/Cliente/LoginRegistro")}
-              >
-                <i className="fa-regular fa-user"></i> Mi Cuenta
-              </button>
-            ) : (
-              <>
-                <span className="btn btn-light btn-sm disabled">
-                  <i className="fa-regular fa-user"></i> Hola, {usuario.nombre}
-                </span>
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  id="boton_salir_sesion"
-                  onClick={() => {
-                    salir();
-                    saltarAUrl("/");
-                  }}
-                >
-                  Salir
-                </button>
-              </>
-            )}
+            <SessionButton
+              saltarAUrl={saltarAUrl}
+              email={usuario?.email || usuario?.nombre || null}
+              icono={usuario?.cuenta?.imagenAvatar || null}
+              salir={salir}
+            />
             <button className="btn btn-light btn-sm">
               <i className="fa-solid fa-cart-shopping position-relative"></i> Mi
               Cesta
