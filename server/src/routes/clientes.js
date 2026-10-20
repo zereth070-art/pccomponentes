@@ -47,7 +47,7 @@ routerClientes.post("/api/Cliente/Registro", async (req, res) => {
         apellidos: "",
         cuenta: {
           email: email,
-          password: bcrypt.hashSync(password, 10), // hash con 10 rondas de sal
+          password: await bcrypt.hash(password, 10), // hash con 10 rondas de sal (con promesa: no bloquea el event loop)
           activada: false,
           telefono: "",
         },

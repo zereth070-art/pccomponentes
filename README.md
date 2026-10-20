@@ -192,8 +192,8 @@ En desarrollo. Pendiente:
 
 - [ ] Catálogo de productos real (solo hay categorías)
 - [ ] Carrito y pedidos
-- [ ] Terminar el *callback* de Google OAuth (devuelve los datos del usuario pero
-      todavía no inicia sesión)
+- [x] Login con Google OAuth 2.0 completo: canje del código, creación del usuario,
+      token de sesión y cierre automático del *popup*
 - [ ] Tests automatizados
 
 ---
