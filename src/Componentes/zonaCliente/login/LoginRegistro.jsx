@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { validateEmail } from "../../../utils/validaciones.js";
 import "./LoginRegistro.css";
 import { useNavigate } from "react-router";
@@ -26,6 +26,30 @@ function LoginRegistro() {
   //separado de errores porque esos son de validacion local y estos vienen desde el SERVIDOR
   const [errorApi, setErrorApi] = useState("");
   const esRegistro = modo === "registro";
+
+  // El login con Google pasa por un POPUP: el popup es quien habla con
+  // Google y, al terminar, le pasa el token a ESTA ventana con postMessage.
+  // Nos suscribimos a esos mensajes al montar el componente.
+  useEffect(() => {
+    const recibirMensaje = (evento) => {
+      // SEGURIDAD: solo aceptamos mensajes de nuestro propio origen. Sin
+      // esta comprobacion, cualquier pagina de internet podria mandarnos un
+      // token falso y meter una sesion inventada.
+      if (evento.origin !== window.location.origin) return;
+
+      const datos = evento.data;
+      if (datos?.tipo === "google-login") {
+        login(datos.usuario, datos.token);
+        navigate("/");
+      } else if (datos?.tipo === "google-login-error") {
+        setErrorApi("No se ha podido iniciar la sesion con Google.");
+      }
+    };
+
+    window.addEventListener("message", recibirMensaje);
+    // al desmontar el componente quitamos el listener (si no, se acumulan)
+    return () => window.removeEventListener("message", recibirMensaje);
+  }, [login, navigate]);
 
   const campos = [
     ...(esRegistro
@@ -143,14 +167,26 @@ function LoginRegistro() {
   }
   async function handlerGoogleLoginClick() {
     try {
+      // El popup se ABRE primero, de forma sincrona, y con una pagina en
+      // blanco. Si esperamos al fetch para abrirlo, el navegador ya no lo
+      // considera "un clic del usuario" y lo bloquea.
+      const popup = window.open("", "popupGoogle", "width=600,height=600");
+      if (!popup) {
+        setErrorApi("El navegador ha bloqueado la ventana de Google.");
+        return;
+      }
+
       // ruta relativa: pasa por el proxy de Vite (mismo origen => sin CORS)
       const respuesta = await fetch("/api/Cliente/LoginGoogle");
       const datos = await respuesta.json();
       if (!respuesta.ok || datos.codigo !== 0)
         throw new Error(datos.mensaje ?? "No se pudo iniciar el login con Google");
-      window.open(datos.datos.url, "popupGoogle", "width=600,height=600");
+
+      // ya tenemos la URL: el popup se va a la pagina de Google
+      popup.location.href = datos.datos.url;
     } catch (error) {
-      console.log("error al hacer login con google: ", error);
+      console.error("error al hacer login con google: ", error);
+      setErrorApi(error.message);
     }
   }
   return (

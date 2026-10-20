@@ -21,7 +21,7 @@ function httpError(status, codigo, mensaje) {
 }
 
 /** En un JWT nunca va la contraseña, ni el hash. Solo identificadores. */
-function firmarToken(usuario) {
+export function firmarToken(usuario) {
   return jwt.sign(
     { sub: usuario.id, email: usuario.email },
     process.env.JWT_SECRET,
@@ -38,7 +38,7 @@ function firmarTokenVerificacion(usuario) {
   );
 }
 
-function datosPublicos(usuario) {
+export function datosPublicos(usuario) {
   return { id: usuario.id, nombre: usuario.nombre, email: usuario.email };
 }
 
