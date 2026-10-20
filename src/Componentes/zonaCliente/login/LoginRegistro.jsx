@@ -38,10 +38,19 @@ function LoginRegistro() {
       if (evento.origin !== window.location.origin) return;
 
       const datos = evento.data;
+      console.log(
+        "evento message recibido del popup de login con google, datos:",
+        datos,
+      );
       if (datos?.tipo === "google-login") {
+        // 1) cerrar el popup de login con google
+        evento.source?.close();
+        // 2) guardar usuario y token en el store global (zustand)
         login(datos.usuario, datos.token);
+        // 3) redirigir a la pagina principal
         navigate("/");
       } else if (datos?.tipo === "google-login-error") {
+        console.log("error al hacer login con google:", datos.mensaje);
         setErrorApi("No se ha podido iniciar la sesion con Google.");
       }
     };

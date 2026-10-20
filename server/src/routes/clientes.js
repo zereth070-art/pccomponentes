@@ -7,6 +7,7 @@ import { google } from "googleapis";
 import { Usuario } from "../models/Usuario.js";
 import { firmarToken, datosPublicos } from "./auth.js";
 export const routerClientes = Router();
+import { useEffect }from 'react';
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_OAUTH_CLIENT,
@@ -98,6 +99,37 @@ routerClientes.get("/api/Cliente/LoginGoogle", async function (req, res, next) {
       mensaje: "login con google generado",
       datos: { url: url },
     });
+
+    useEffect(
+      ()=> {
+        window.addEventListener('message', (evento) =>{
+          console.log("evento message recibido dle popup del login con google, datos mandados por popup;" , evento.data);
+          if (evento,data.codigo !== 0) {
+            console.log("error al hacer login con gogle", evento.data.mensaje);
+
+          } else{
+             evento.source.clouse();
+             //2º guardar en el store global de zustand los datos del cliente y los tokens JWT
+              const token = 
+             res.status(200)
+              .send(` <html>
+                <script>
+                window.opener.postMessage(
+                  codigo:0,
+                  mensaje:'login con Google correcto',
+                  datos: {
+                    cliente: ${datosUsuario},
+                    token: ${token}
+                  }  
+                )
+                </script>
+                </html>`)
+             //rediriccionar a la pagina principal
+             navigate('/')
+          }
+        })
+      }
+    )
   } catch (error) {
     console.log(`'Error al procesar login con Google OAuth 2-0: ' ${error}`);
     res.status(200).send({
