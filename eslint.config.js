@@ -5,7 +5,10 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // 'dist' es la carpeta de build; 'docs/profe' guarda los ficheros tal cual
+  // los da el profesor (fragmentos sueltos, no son modulos que se ejecutan),
+  // asi que no tiene sentido pasarles el linter.
+  globalIgnores(['dist', 'docs/profe']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
