@@ -18,8 +18,8 @@ try {
   //    si mañana añades un modelo, no hay que acordarte de esto.
   await mongoose.syncIndexes();
 
-  // 3. ya sí: escuchar peticiones
-  crearApp().listen(PORT, () => {
+  // 3. ya sí: escuchar peticiones en 0.0.0.0 (IPv4 e IPv6)
+  crearApp().listen(PORT, "0.0.0.0", () => {
     console.log(`[api] escuchando en http://localhost:${PORT}`);
   });
 } catch (err) {

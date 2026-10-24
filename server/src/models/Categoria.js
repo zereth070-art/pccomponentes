@@ -1,19 +1,26 @@
 import mongoose from "mongoose";
 
 /*
- * Esquema de Categoria. OJO al modo estricto de mongoose (por defecto ON):
- * si en el código intentas guardar un campo que NO está aquí, mongoose lo
- * IGNORA EN SILENCIO y el dato se pierde sin error. Escribe el campo en el
- * esquema antes de usarlo.
+ * Esquema de Categoria con soporte para jerarquía padre-hijo (subcategorías).
+ * - parent: referencia a otra Categoria (null = categoría raíz/nivel 1)
+ * - slug: único globalmente (no por padre), así que "portatiles-gaming" no
+ *   colisiona con "portatiles-oficina" aunque cuelguen de padres distintos.
  */
 const categoriaSchema = new mongoose.Schema(
   {
     nombre: { type: String, required: true, trim: true },
-    // unique declara una INTENCIÓN de índice único, no lo garantiza por sí
-    // solo: por eso index.js llama a syncIndexes() al arrancar.
     slug: { type: String, required: true, unique: true, trim: true },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Categoria",
+      default: null,
+      index: true,
+    },
   },
   { timestamps: true },
 );
+
+/* Índice compuesto para consultar "hijos de X ordenados por nombre" rápido */
+categoriaSchema.index({ parent: 1, nombre: 1 });
 
 export const Categoria = mongoose.model("Categoria", categoriaSchema);
