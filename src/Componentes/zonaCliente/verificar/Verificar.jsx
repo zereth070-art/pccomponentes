@@ -8,29 +8,44 @@ import { apiFetch } from "../../../utils/apiFetch.js";
  */
 function Verificar() {
   const [params] = useSearchParams();
-  const [mensaje, setMensaje] = useState("Confirmando tu cuenta...");
-  const [ok, setOk] = useState(false);
+  const token = params.get("token");
+  const [estado, setEstado] = useState({
+    ok: false,
+    mensaje: "Confirmando tu cuenta...",
+  });
 
   useEffect(() => {
-    const token = params.get("token");
-    if (!token) {
-      setOk(false);
-      setMensaje("Enlace de verificación inválido.");
-      return;
-    }
+    // Sin token no hay nada que confirmar: el estado se deriva, no se guarda
+    // (llamar a setState aqui seria un render en cascada).
+    if (!token) return;
+
+    // Si el usuario navega a otro sitio mientras llega la respuesta, no
+    // actualizamos un componente que ya no esta montado.
+    let cancelado = false;
 
     apiFetch(`/api/auth/verificar?token=${encodeURIComponent(token)}`)
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error?.mensaje ?? "Error inesperado");
-        setOk(true);
-        setMensaje(data.mensaje ?? "Cuenta confirmada, ya puedes entrar.");
+        if (!cancelado)
+          setEstado({
+            ok: true,
+            mensaje: data.mensaje ?? "Cuenta confirmada, ya puedes entrar.",
+          });
       })
       .catch((err) => {
-        setOk(false);
-        setMensaje(err.message);
+        if (!cancelado) setEstado({ ok: false, mensaje: err.message });
       });
-  }, [params]);
+
+    return () => {
+      cancelado = true;
+    };
+  }, [token]);
+
+  const ok = Boolean(token) && estado.ok;
+  const mensaje = token
+    ? estado.mensaje
+    : "Enlace de verificación inválido.";
 
   return (
     <section className="form-container">

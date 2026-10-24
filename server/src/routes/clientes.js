@@ -7,7 +7,6 @@ import { google } from "googleapis";
 import { Usuario } from "../models/Usuario.js";
 import { firmarToken, datosPublicos } from "./auth.js";
 export const routerClientes = Router();
-import { useEffect }from 'react';
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_OAUTH_CLIENT,
@@ -80,7 +79,7 @@ routerClientes.post("/api/Cliente/Registro", async (req, res) => {
   }
 });
 
-routerClientes.get("/api/Cliente/LoginGoogle", async function (req, res, next) {
+routerClientes.get("/api/Cliente/LoginGoogle", async function (req, res) {
   try {
     //con las creds. de oauth obtenidsa en la consola de desarrolladores de Google, genreamos una url
     //q el usuario se autentifique con su cuenta de Google. Instalamos paquete 'googleapis' para crear el cliente oauth2.0
@@ -99,37 +98,10 @@ routerClientes.get("/api/Cliente/LoginGoogle", async function (req, res, next) {
       mensaje: "login con google generado",
       datos: { url: url },
     });
-
-    useEffect(
-      ()=> {
-        window.addEventListener('message', (evento) =>{
-          console.log("evento message recibido dle popup del login con google, datos mandados por popup;" , evento.data);
-          if (evento,data.codigo !== 0) {
-            console.log("error al hacer login con gogle", evento.data.mensaje);
-
-          } else{
-             evento.source.clouse();
-             //2º guardar en el store global de zustand los datos del cliente y los tokens JWT
-              const token = 
-             res.status(200)
-              .send(` <html>
-                <script>
-                window.opener.postMessage(
-                  codigo:0,
-                  mensaje:'login con Google correcto',
-                  datos: {
-                    cliente: ${datosUsuario},
-                    token: ${token}
-                  }  
-                )
-                </script>
-                </html>`)
-             //rediriccionar a la pagina principal
-             navigate('/')
-          }
-        })
-      }
-    )
+    // A partir de aqui el popup se encarga del resto: navega a la URL de
+    // Google, el usuario se autentica y Google redirige a
+    // /api/Cliente/LoginGoogleCallBack, que es la ruta que canjea el codigo
+    // por el token y se lo pasa a esta ventana con postMessage.
   } catch (error) {
     console.log(`'Error al procesar login con Google OAuth 2-0: ' ${error}`);
     res.status(200).send({
