@@ -112,6 +112,11 @@ cuarto parámetro, Express lo ignora.
 
 ## Lo pendiente: el circuito del token
 
+> **Actualizado el 19/10/2026:** esto ya está hecho. `apiFetch.js` lee el token,
+> lo manda en `Authorization` y cierra la sesión en el `401`. El detalle está en
+> [`NOTA-401-Y-GUARDA-SESION.md`](./NOTA-401-Y-GUARDA-SESION.md). Lo que sigue se
+> conserva como registro de la sesión del 11/10.
+
 ### Situación actual
 
 `LoginRegistro.jsx:119` hace:
