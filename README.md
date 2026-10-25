@@ -146,7 +146,7 @@ Los errores de la API tienen siempre la misma forma:
 └── docs/                    # notas de sesión: qué se hizo y por qué
 ```
 
-## 🔐 Decisiones de seguridad que meFactories
+## 🔐 Decisiones de seguridad que he tomado
 
 **1. El login no dice si el email existe.** Un mismo error y un mismo `codigo`
 (`CREDENCIALES`) para "no existe" y "contraseña incorrecta". Si se distinguieran,
